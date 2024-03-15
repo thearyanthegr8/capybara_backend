@@ -15,6 +15,8 @@ const {
 // Deploy contract route
 app.get("/deploy-contract", async (req, res) => {
   try {
+    // Placeholder
+    // Waiting for form-data to get ready. Will change then
     res.send(await create_prescription("123", "lol"));
   } catch (error) {
     console.error(error);
