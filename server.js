@@ -25,8 +25,8 @@ function generateRandomSHA256Hash(randomData) {
 // Deploy contract route
 app.get("/deploy-contract", async (req, res) => {
   try {
+    console.log(req.query);
     const hash = generateRandomSHA256Hash(req.query.data);
-    console.log(hash);
     res.send(
       await create_prescription(
         req.query.pid,
@@ -60,7 +60,7 @@ app.get("/verify", async (req, res) => {
     return;
   }
   try {
-    const resp1 = await verify_prescription(queryData.address, queryData.hash);
+    const resp1 = await verify_prescription(queryData.address, generateRandomSHA256Hash(queryData.data));
     const resp2 = await is_valid(queryData.address);
 
     res.send(resp1 && resp2).status(200);
@@ -76,7 +76,7 @@ app.get("/invalidate", async (req, res) => {
     return;
   }
   try {
-    const resp = await use_prescription(queryData.address, queryData.hash);
+    const resp = await use_prescription(queryData.address, queryData.data);
     if (resp) {
       res.send("Successfully consumed prescription").status(200);
     } else {
