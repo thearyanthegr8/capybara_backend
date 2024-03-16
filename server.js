@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const port = 5000;
 
+const crypto = require("crypto");
 app.use(express.json());
 
 const {
@@ -12,15 +13,29 @@ const {
   use_prescription,
 } = require("./scripts/call");
 
+function generateRandomSHA256Hash(randomData) {
+  const sha256Hash = crypto
+    .createHash("sha256")
+    .update(randomData)
+    .digest("hex");
+
+  return sha256Hash;
+}
+
 // Deploy contract route
 app.get("/deploy-contract", async (req, res) => {
   try {
-    // Placeholder
-    // Waiting for form-data to get ready. Will change then
-    res.send(await create_prescription("123", "lol"));
+    const hash = generateRandomSHA256Hash(req.query.data);
+    console.log(hash);
+    res.send(
+      await create_prescription(
+        req.query.pid,
+        hash
+      )
+    );
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error deploying contract");
+    res.status(400).send("Error deploying contract");
   }
 });
 
@@ -40,7 +55,7 @@ app.get("/validity", async (req, res) => {
 
 app.get("/verify", async (req, res) => {
   const queryData = req.query;
-  if (!queryData.hash || !queryData.address) {
+  if (!queryData.data || !queryData.address) {
     res.send("Missing request parameters").status(400);
     return;
   }
@@ -56,7 +71,7 @@ app.get("/verify", async (req, res) => {
 
 app.get("/invalidate", async (req, res) => {
   const queryData = req.query;
-  if (!queryData.hash || !queryData.address) {
+  if (!queryData.data || !queryData.address) {
     res.send("Missing request parameters").status(400);
     return;
   }
